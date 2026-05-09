@@ -1,0 +1,142 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ────────────────────────────────────── */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-orange-50 text-gray-800 font-body transition-colors duration-300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .dark body {
+    @apply bg-gray-950 text-gray-100;
+  }
+
+  /* Leaflet map z-index fix for modals */
+  .leaflet-container {
+    z-index: 0;
+  }
+  .leaflet-pane,
+  .leaflet-tile,
+  .leaflet-marker-icon,
+  .leaflet-marker-shadow,
+  .leaflet-tile-pane,
+  .leaflet-overlay-pane,
+  .leaflet-shadow-pane,
+  .leaflet-marker-pane,
+  .leaflet-tooltip-pane,
+  .leaflet-popup-pane {
+    z-index: auto !important;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-orange-100 dark:bg-gray-800;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-saffron-400 rounded-full;
+  }
+}
+
+/* ─── Components ──────────────────────────────── */
+@layer components {
+  .btn-primary {
+    @apply bg-saffron-500 hover:bg-saffron-600 text-white font-display font-semibold
+           px-6 py-3 rounded-2xl shadow-md transition-all duration-200
+           active:scale-95 focus:outline-none focus:ring-4 focus:ring-saffron-300;
+  }
+
+  .btn-secondary {
+    @apply bg-white dark:bg-gray-800 border-2 border-saffron-300 dark:border-saffron-600
+           text-saffron-600 dark:text-saffron-400 font-display font-semibold
+           px-6 py-3 rounded-2xl shadow-sm transition-all duration-200
+           hover:bg-saffron-50 dark:hover:bg-gray-700
+           active:scale-95 focus:outline-none focus:ring-4 focus:ring-saffron-200;
+  }
+
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white font-display font-semibold
+           px-4 py-2 rounded-xl transition-all duration-200 active:scale-95;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-orange-200 dark:border-gray-600
+           bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100
+           font-body placeholder-gray-400
+           focus:outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-200
+           transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-md
+           border border-orange-100 dark:border-gray-700
+           transition-all duration-200 overflow-hidden;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .section-title {
+    @apply font-display font-bold text-2xl text-gray-800 dark:text-gray-100;
+  }
+}
+
+/* ─── Utilities ───────────────────────────────── */
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-saffron-500 to-turmeric-500 bg-clip-text text-transparent;
+  }
+
+  .bg-pattern {
+    background-image: radial-gradient(circle at 20% 50%, rgba(255, 125, 15, 0.08) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(245, 200, 66, 0.06) 0%, transparent 50%);
+  }
+
+  /* Star rating */
+  .star-filled  { @apply text-turmeric-500; }
+  .star-empty   { @apply text-gray-300 dark:text-gray-600; }
+}
+
+/* 🌟 Smooth UI */
+body {
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* 🧊 Glass card */
+.card {
+  @apply bg-white/80 dark:bg-gray-900/70 backdrop-blur-md border border-white/20 dark:border-gray-700 rounded-2xl shadow-md;
+}
+
+/* 🔘 Input style */
+.input-field {
+  @apply px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700
+  bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200
+  focus:outline-none focus:ring-2 focus:ring-saffron-400;
+}
+
+/* 🟠 Button */
+.btn {
+  @apply px-4 py-2 rounded-xl font-semibold transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-saffron-500 text-white hover:bg-saffron-600 active:scale-95;
+}
+
+.btn-soft {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200;
+}
