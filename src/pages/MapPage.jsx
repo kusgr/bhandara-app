@@ -52,7 +52,7 @@ L.Icon.Default.mergeOptions({
 });
 
 // ─────────────────────────────────────────
-// Orange Marker Icon
+// Orange Marker
 // ─────────────────────────────────────────
 
 const orangeIcon = new L.Icon({
@@ -72,7 +72,7 @@ const orangeIcon = new L.Icon({
 });
 
 // ─────────────────────────────────────────
-// Recenter Map Component
+// Recenter Map
 // ─────────────────────────────────────────
 
 function RecenterMap({
@@ -81,7 +81,7 @@ function RecenterMap({
 
   const map = useMap();
 
-  // Auto recenter
+  // Auto Recenter
   useEffect(() => {
 
     if (
@@ -103,7 +103,7 @@ function RecenterMap({
 
   }, [location, map]);
 
-  // Manual recenter
+  // Manual Recenter
   useEffect(() => {
 
     function handleRecenter() {
@@ -182,7 +182,77 @@ export default function MapPage() {
   return (
     <div className="h-[calc(100vh-80px)] w-full relative">
 
-      {/* Recenter Button */}
+      {/* Dashboard */}
+      <div className="absolute top-4 left-4 z-[1000] bg-white/95 backdrop-blur-xl border border-orange-100 rounded-3xl shadow-2xl p-4 w-[260px]">
+
+        <div className="flex items-center justify-between mb-4">
+
+          <div>
+
+            <h2 className="font-black text-lg text-gray-800">
+
+              Live Map
+
+            </h2>
+
+            <p className="text-xs text-gray-400">
+
+              Nearby Bhandaras
+
+            </p>
+
+          </div>
+
+          <div className="w-11 h-11 rounded-2xl bg-orange-500 flex items-center justify-center text-white text-xl">
+
+            🍛
+
+          </div>
+
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-3">
+
+          <div className="bg-orange-50 rounded-2xl p-3">
+
+            <p className="text-xs text-gray-400 mb-1">
+
+              Active
+
+            </p>
+
+            <h3 className="font-black text-2xl text-gray-800">
+
+              {bhandaras.length}
+
+            </h3>
+
+          </div>
+
+          <div className="bg-blue-50 rounded-2xl p-3">
+
+            <p className="text-xs text-gray-400 mb-1">
+
+              GPS
+
+            </p>
+
+            <h3 className="font-black text-lg text-blue-600">
+
+              {userLocation
+                ? 'LIVE'
+                : 'OFF'}
+
+            </h3>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* Current Location Button */}
       <button
         onClick={() => {
 
