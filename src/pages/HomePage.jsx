@@ -58,10 +58,7 @@ export default function HomePage() {
     useState(null);
 
   const [notifPerm, setNotifPerm] =
-    useState(
-      Notification?.permission ||
-        'default'
-    );
+  useState('default');
 
   // ─────────────────────────────────────────
   // Nearby notifications
