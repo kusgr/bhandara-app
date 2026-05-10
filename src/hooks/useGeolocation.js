@@ -8,11 +8,11 @@ export function useGeolocation() {
   const [location, setLocation] =
     useState(null);
 
-  const [loading, setLoading] =
-    useState(true);
-
   const [error, setError] =
     useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
 
@@ -29,50 +29,53 @@ export function useGeolocation() {
       return;
     }
 
-    function success(position) {
+    // Watch live location
+    const watchId =
+      navigator.geolocation.watchPosition(
 
-      setLocation({
-        lat:
-          position.coords
-            .latitude,
+        (position) => {
 
-        lng:
-          position.coords
-            .longitude,
-      });
+          setLocation({
+            lat:
+              position.coords
+                .latitude,
 
-      setLoading(false);
+            lng:
+              position.coords
+                .longitude,
+          });
 
-      setError(null);
-    }
+          setError(null);
 
-    function fail(err) {
+          setLoading(false);
+        },
 
-      console.log(err);
+        (err) => {
 
-      setError(
-        err.message ||
-        'Location permission denied'
+          setError(err.message);
+
+          setLoading(false);
+        },
+
+        {
+          enableHighAccuracy: true,
+          maximumAge: 10000,
+          timeout: 15000,
+        }
       );
 
-      setLoading(false);
-    }
+    return () => {
 
-    navigator.geolocation.getCurrentPosition(
-      success,
-      fail,
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0,
-      }
-    );
+      navigator.geolocation.clearWatch(
+        watchId
+      );
+    };
 
   }, []);
 
   return {
     location,
-    loading,
     error,
+    loading,
   };
 }

@@ -1,13 +1,30 @@
+// src/pages/MapPage.jsx
+
 import {
-  MapPinned,
-  Eye,
-  MapPin,
-  Clock3,
+  useEffect,
+  useMemo,
+} from 'react';
+
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  CircleMarker,
+  useMap,
+} from 'react-leaflet';
+
+import {
+  Link,
+} from 'react-router-dom';
+
+import {
+  LocateFixed,
 } from 'lucide-react';
 
-import MapView from '../components/MapView.jsx';
+import L from 'leaflet';
 
-import PageWrapper from '../components/PageWrapper.jsx';
+import 'leaflet/dist/leaflet.css';
 
 import {
   useBhandaras,
@@ -17,225 +34,307 @@ import {
   useGeolocation,
 } from '../hooks/useGeolocation.js';
 
+// ─────────────────────────────────────────
+// Fix Leaflet Marker Icons
+// ─────────────────────────────────────────
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+
+  iconUrl:
+    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+
+  shadowUrl:
+    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+// ─────────────────────────────────────────
+// Orange Marker Icon
+// ─────────────────────────────────────────
+
+const orangeIcon = new L.Icon({
+  iconUrl:
+    'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
+
+  shadowUrl:
+    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+
+  iconSize: [25, 41],
+
+  iconAnchor: [12, 41],
+
+  popupAnchor: [1, -34],
+
+  shadowSize: [41, 41],
+});
+
+// ─────────────────────────────────────────
+// Recenter Map Component
+// ─────────────────────────────────────────
+
+function RecenterMap({
+  location,
+}) {
+
+  const map = useMap();
+
+  // Auto recenter
+  useEffect(() => {
+
+    if (
+      location?.lat &&
+      location?.lng
+    ) {
+
+      map.setView(
+        [
+          location.lat,
+          location.lng,
+        ],
+        15,
+        {
+          animate: true,
+        }
+      );
+    }
+
+  }, [location, map]);
+
+  // Manual recenter
+  useEffect(() => {
+
+    function handleRecenter() {
+
+      if (
+        location?.lat &&
+        location?.lng
+      ) {
+
+        map.setView(
+          [
+            location.lat,
+            location.lng,
+          ],
+          16,
+          {
+            animate: true,
+          }
+        );
+      }
+    }
+
+    window.addEventListener(
+      'recenter-map',
+      handleRecenter
+    );
+
+    return () => {
+
+      window.removeEventListener(
+        'recenter-map',
+        handleRecenter
+      );
+    };
+
+  }, [location, map]);
+
+  return null;
+}
+
+// ─────────────────────────────────────────
+// Page
+// ─────────────────────────────────────────
+
 export default function MapPage() {
+
   const {
     location: userLocation,
   } = useGeolocation();
 
   const {
-    bhandaras,
-    loading,
+    bhandaras = [],
   } = useBhandaras(
     userLocation
   );
 
-  // ─────────────────────────────────────────
-  // Stats
-  // ─────────────────────────────────────────
+  // Default Center
+  const center = useMemo(() => {
 
-  const totalViews =
-    bhandaras.reduce(
-      (sum, item) =>
-        sum +
-        (item.views || 0),
-      0
-    );
+    if (
+      userLocation?.lat &&
+      userLocation?.lng
+    ) {
 
-  const nearbyCount =
-    bhandaras.filter(
-      (b) =>
-        b.distance != null &&
-        b.distance <= 5
-    ).length;
+      return [
+        userLocation.lat,
+        userLocation.lng,
+      ];
+    }
+
+    // Delhi fallback
+    return [28.6139, 77.209];
+
+  }, [userLocation]);
 
   return (
-    <PageWrapper>
-
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-
-        {/* Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-saffron-500 to-turmeric-500 p-6 text-white">
-
-          {/* Glow */}
-          <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full" />
-
-          <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/10 rounded-full" />
-
-          <div className="relative z-10">
-
-            <div className="flex items-center gap-2 mb-2">
-
-              <MapPinned size={18} />
-
-              <span className="text-sm text-white/80">
-                Live Community Map
-              </span>
-
-            </div>
-
-            <h1 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight">
-              Explore Nearby
-              <br />
-              Bhandaras 🍛
-            </h1>
-
-            <p className="text-sm text-white/80 mt-3 max-w-md">
-              Discover nearby food
-              events happening around
-              you in realtime.
-            </p>
-
-          </div>
-
-        </div>
-
-        {/* Dashboard cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-
-          {/* Total */}
-          <div className="card p-5">
-
-            <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-
-              <MapPin
-                size={22}
-                className="text-saffron-500"
-              />
-
-            </div>
-
-            <p className="text-sm text-gray-400">
-              Total Bhandaras
-            </p>
-
-            <h2 className="font-display font-extrabold text-3xl text-gray-800 dark:text-gray-100 mt-1">
-
-              {bhandaras.length}
-
-            </h2>
-
-          </div>
-
-          {/* Nearby */}
-          <div className="card p-5">
-
-            <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-
-              <Clock3
-                size={22}
-                className="text-saffron-500"
-              />
-
-            </div>
-
-            <p className="text-sm text-gray-400">
-              Nearby
-            </p>
-
-            <h2 className="font-display font-extrabold text-3xl text-gray-800 dark:text-gray-100 mt-1">
-
-              {nearbyCount}
-
-            </h2>
-
-          </div>
-
-          {/* Views */}
-          <div className="card p-5">
-
-            <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-
-              <Eye
-                size={22}
-                className="text-saffron-500"
-              />
-
-            </div>
-
-            <p className="text-sm text-gray-400">
-              Total Views
-            </p>
-
-            <h2 className="font-display font-extrabold text-3xl text-gray-800 dark:text-gray-100 mt-1">
-
-              {totalViews}
-
-            </h2>
-
-          </div>
-
-          {/* Live */}
-          <div className="card p-5">
-
-            <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-
-              <span className="text-2xl">
-                🔴
-              </span>
-
-            </div>
-
-            <p className="text-sm text-gray-400">
-              Live Updates
-            </p>
-
-            <h2 className="font-display font-extrabold text-3xl text-gray-800 dark:text-gray-100 mt-1">
-
-              ON
-
-            </h2>
-
-          </div>
-
-        </div>
-
-        {/* Map */}
-        <div className="space-y-4">
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <h2 className="font-display font-bold text-2xl text-gray-800 dark:text-gray-100">
-
-                Live Map
-
-              </h2>
-
-              <p className="text-sm text-gray-400 mt-1">
-                Explore realtime
-                bhandaras around you
-              </p>
-
-            </div>
-
-            {!loading && (
-              <span className="px-4 py-2 rounded-2xl bg-orange-50 dark:bg-gray-800 text-sm font-semibold text-saffron-600 dark:text-saffron-400">
-
-                {bhandaras.length}
-                {' '}
-                active
-
-              </span>
-            )}
-
-          </div>
-
-          {/* Map component */}
-          <MapView
-            bhandaras={
-              bhandaras
+    <div className="h-[calc(100vh-80px)] w-full relative">
+
+      {/* Recenter Button */}
+      <button
+        onClick={() => {
+
+          window.dispatchEvent(
+            new CustomEvent(
+              'recenter-map'
+            )
+          );
+        }}
+        className="absolute top-4 right-4 z-[1000] bg-white shadow-2xl border border-orange-100 rounded-2xl p-3"
+      >
+
+        <LocateFixed
+          size={22}
+          className="text-orange-500"
+        />
+
+      </button>
+
+      {/* Map */}
+      <MapContainer
+        center={center}
+        zoom={13}
+        scrollWheelZoom={true}
+        className="h-full w-full z-0"
+      >
+
+        {/* Tiles */}
+        <TileLayer
+          attribution='&copy; OpenStreetMap contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        {/* Auto Recenter */}
+        <RecenterMap
+          location={userLocation}
+        />
+
+        {/* Current Location */}
+        {userLocation && (
+          <>
+            {/* Blue Glow */}
+            <CircleMarker
+              center={[
+                userLocation.lat,
+                userLocation.lng,
+              ]}
+              radius={18}
+              pathOptions={{
+                color: '#3b82f6',
+                fillColor: '#3b82f6',
+                fillOpacity: 0.2,
+              }}
+            />
+
+            {/* Blue Dot */}
+            <CircleMarker
+              center={[
+                userLocation.lat,
+                userLocation.lng,
+              ]}
+              radius={8}
+              pathOptions={{
+                color: '#ffffff',
+                weight: 3,
+                fillColor: '#2563eb',
+                fillOpacity: 1,
+              }}
+            >
+
+              <Popup>
+                📍 You are here
+              </Popup>
+
+            </CircleMarker>
+          </>
+        )}
+
+        {/* Bhandara Markers */}
+        {bhandaras.map(
+          (bhandara) => {
+
+            if (
+              !bhandara.lat ||
+              !bhandara.lng
+            ) {
+
+              return null;
             }
-            userLocation={
-              userLocation
-            }
-            height="650px"
-          />
 
-        </div>
+            return (
+              <Marker
+                key={bhandara.id}
+                position={[
+                  bhandara.lat,
+                  bhandara.lng,
+                ]}
+                icon={orangeIcon}
+              >
 
-      </div>
+                <Popup>
 
-    </PageWrapper>
+                  <div className="space-y-2 min-w-[180px]">
+
+                    <h3 className="font-bold text-lg">
+
+                      {
+                        bhandara.title
+                      }
+
+                    </h3>
+
+                    <p className="text-sm text-gray-600">
+
+                      {
+                        bhandara.description
+                      }
+
+                    </p>
+
+                    <div className="flex items-center justify-between">
+
+                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
+
+                        {
+                          bhandara.foodType
+                        }
+
+                      </span>
+
+                      <Link
+                        to={`/bhandara/${bhandara.id}`}
+                        className="text-sm text-orange-600 font-semibold"
+                      >
+
+                        View →
+
+                      </Link>
+
+                    </div>
+
+                  </div>
+
+                </Popup>
+
+              </Marker>
+            );
+          }
+        )}
+
+      </MapContainer>
+
+    </div>
   );
 }
